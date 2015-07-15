@@ -34,43 +34,67 @@ def enum_max_sub(array):
 	#***This return is used in execution time testing***
 	return max	
 
-def divide_conquer_max_sub(array, array_len):
-	# Base case
-	if array_len == 1:
-		return array[0]
+def divide_conquer_max_sub(a):   
 
-	half_array_len = array_len / 2
+	# the following function is to find the crossiing max subarray
+    def find_cross_max(a, l, r, m):
 
-	# Recursive cases
-	left_max_sub = divide_conquer_max_sub(array, half_array_len)
-	# Notice below that we pass array indexed starting at half_array_len
-	right_max_sub = divide_conquer_max_sub(array[half_array_len:], array_len - 
-		half_array_len) 
+        # left Side
+        ls_l = m+1
+        ls_r = m
+        l_max_sum = None
+        sub_sum = 0
+		# add elements from right to left
+        for j in xrange(m,l-1,-1):
+            sub_sum += a[j]
+            if sub_sum > l_max_sum:
+                l_max_sum = sub_sum
+                ls_l = j
+        
+        # right Side             
+        rs_l = m+1
+        rs_r = m
+        r_max_sum = 0
+        sub_sum = 0
+		# add elements from left to right
+        for j in range(m+1,r+1):
+            sub_sum += a[j]
+            if sub_sum > r_max_sum:
+                r_max_sum = sub_sum
+                rs_r = j
 
-	# Initialize left and right sums to lowest possible int values
-	left_sum = -maxint - 1
-	right_sum = -maxint - 1
+        #combine sums
+        return (ls_l, rs_r, l_max_sum+r_max_sum)
 	sum = 0
 
-	# Iterate through right half from left to right
-	for i in range(half_array_len, array_len):
-		sum += array[i]
-		right_sum = max(right_sum, sum)
-		index_hi = i
+    def Divide_and_conqur_recursion_classification(a,l,r):   
+		
+		# Base case
+        if r == l:
+            return (l,r,a[l])
+		# Notice below that we pass array indexed starting at half_array_len
+        else:
 
-	# Reset sum and set loop driver i
-	sum = 0
-	i = half_array_len - 1
+            m = (l+r)//2                    
+            left_max = Divide_and_conqur_recursion_classification(a,l,m)        
+            right_max = Divide_and_conqur_recursion_classification(a,m+1,r)     
+			# Recursive cases
+            cross_max = find_cross_max(a,l,r,m)   
+			# check maximum sum left side
+            if left_max[2]>=right_max[2] and left_max[2]>=cross_max[2]:
+                return left_max
+			# check maximum sum right side
+            elif right_max[2]>=left_max[2] and right_max[2]>=cross_max[2]:
+                return right_max
+			# check the crossing sum 
+            else:
+                return cross_max
 
-	# Iterate through left half from right to left
-	for i in range(i, 0, -1):
-		sum += array[i]
-		left_sum = max(left_sum, sum)
-		index_lo = i
-
-	ans = max(left_max_sub, right_max_sub)
-
-	return max(ans, left_sum + right_sum)
+    #back to master function
+    l = 0
+    r = len(a)-1
+	
+    return Divide_and_conqur_recursion_classification(a,l,r)
 
 
 def better_enum_max_sub(array):
@@ -132,16 +156,16 @@ for i in range(0, int(sys.argv[1])):
 #diff = t2 - t1
 #print 'Execution time: ', diff.seconds, 's', int(diff.microseconds/1000), 'ms'
 
-#print 'Testing D&C method...'
-#t1 = datetime.datetime.now()
-#divide_conquer_max_sub(test_array, len(test_array))
-#t2 = datetime.datetime.now()
-#diff = t2 - t1
-#print 'Execution time: ', diff.seconds, 's', int(diff.microseconds/1000), 'ms'
-
-print 'Testing linear method...'
+print 'Testing D&C method...'
 t1 = datetime.datetime.now()
-linear_max_sub(test_array)
+divide_conquer_max_sub(test_array)
 t2 = datetime.datetime.now()
 diff = t2 - t1
 print 'Execution time: ', diff.seconds, 's', int(diff.microseconds/1000), 'ms'
+
+#print 'Testing linear method...'
+#t1 = datetime.datetime.now()
+#linear_max_sub(test_array)
+#t2 = datetime.datetime.now()
+#diff = t2 - t1
+#print 'Execution time: ', diff.seconds, 's', int(diff.microseconds/1000), 'ms'
